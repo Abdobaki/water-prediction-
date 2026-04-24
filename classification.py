@@ -43,6 +43,11 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF, WhiteKernel, Matern
+from catboost import CatBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -54,7 +59,7 @@ from sklearn.svm import SVC
 # 3. Load dataset
 # ============================================================
 # Load Aluminium dataset with semicolon separator
-dataset = pandas.read_csv("datasets/Aluminium.csv", sep=';', encoding='latin-1')
+dataset = pandas.read_csv("Aluminium.csv", sep=';', encoding='latin-1')
 
 # Data Cleaning & Preprocessing
 # 1. Sample the dataset for performance (Aluminium has >130k rows)
@@ -130,17 +135,32 @@ print("Saved: plot_scatter_matrix.png")
 X = dataset[['Value', 'Depth']].values
 Y = dataset['Data.Quality'].values
 X_train, X_validation, Y_train, Y_validation = train_test_split(
-    X, Y, test_size=1, random_state=1
+    X, Y, test_size=0.2, random_state=1
 )
 
 # 6.2 Build Models - Spot Check Algorithms
 models = []
-models.append(('LR', LogisticRegression(solver='lbfgs', max_iter=10000)))
-models.append(('LDA', LinearDiscriminantAnalysis()))
+models.append(('LR', LogisticRegression(C=1, solver='lbfgs', max_iter=4000, random_state=1)))
+models.append(('LDA', LinearDiscriminantAnalysis( tol=0.0001 )))
 models.append(('KNN', KNeighborsClassifier(n_neighbors=3,weights='distance')))
-models.append(('CART', DecisionTreeClassifier()))
-models.append(('NB', GaussianNB()))
-models.append(('SVM', SVC(gamma='auto',C=9)))
+models.append(('CART', DecisionTreeClassifier(max_depth=10, min_samples_split=5, min_samples_leaf=2)))
+models.append(('NB', GaussianNB(var_smoothing=1)))
+models.append(('SVM', SVC(gamma='auto',C=9, kernel='rbf',random_state=1)))
+models.append(('RF', RandomForestClassifier(n_estimators=100,max_features='sqrt',)))
+models.append(('ADA', AdaBoostClassifier(
+    n_estimators=100,
+    learning_rate=1.0,
+    random_state=1
+)))
+
+models.append(('GBM', GradientBoostingClassifier(subsample=0.8)))
+#  models.append(('GPC', GaussianProcessClassifier(   kernel=1.0 ,  n_restarts_optimizer=5,    max_iter_predict=100,  random_state=1)))
+models.append(('MLP', MLPClassifier(
+    alpha=0.01,
+    max_iter=300,
+    random_state=1
+)))
+
 
 # Evaluate each model using 10-fold Stratified Cross Validation
 print("\n--- Model Comparison ---")
