@@ -53,7 +53,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
-
+from sklearn.ensemble import ExtraTreesClassifier, BaggingClassifier
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import Perceptron
 
 # ============================================================
 # 3. Load dataset
@@ -160,6 +163,10 @@ models.append(('MLP', MLPClassifier(
     max_iter=300,
     random_state=1
 )))
+models.append(('ET', ExtraTreesClassifier(n_estimators=100, random_state=1)))
+models.append(('BAG', BaggingClassifier(n_estimators=100, random_state=1)))
+models.append(('PERC', Perceptron(tol=1e-3, random_state=1)))
+models.append(('SGD', SGDClassifier(max_iter=1000, tol=1e-3, random_state=1)))
 
 
 # Evaluate each model using 10-fold Stratified Cross Validation
