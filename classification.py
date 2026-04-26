@@ -163,10 +163,13 @@ models.append(('MLP', MLPClassifier(
     max_iter=300,
     random_state=1
 )))
-models.append(('ET', ExtraTreesClassifier(n_estimators=100, random_state=1)))
-models.append(('BAG', BaggingClassifier(n_estimators=100, random_state=1)))
-models.append(('PERC', Perceptron(tol=1e-3, random_state=1)))
-models.append(('SGD', SGDClassifier(max_iter=1000, tol=1e-3, random_state=1)))
+models.append(('ET', ExtraTreesClassifier(n_estimators=100,criterion='gini',verbose=0, warm_start=False,random_state=1)))
+models.append(('BAG', BaggingClassifier(estimator=DecisionTreeClassifier(max_depth=5),n_estimators=100, random_state=1)))
+models.append(('PERC', Perceptron(alpha=0.0001, tol=0.5, random_state=1)))
+models.append(('SGD', SGDClassifier(
+    loss='log_loss',             
+    penalty='elasticnet', 
+    max_iter=1000, tol=0.4, random_state=1)))
 
 
 # Evaluate each model using 10-fold Stratified Cross Validation
